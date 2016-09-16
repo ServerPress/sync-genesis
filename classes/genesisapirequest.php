@@ -115,10 +115,12 @@ SyncDebug::log(__METHOD__ . '() setting=' . var_export($setting, TRUE));
 				// Grab all of the settings from the database under that key
 				$setting_value = get_option($setting_key);
 
-				$settings[] = array(
-					'option_key' => $setting_key,
-					'option_value' => $setting_value,
-				);
+				if (FALSE !== $setting_value) {
+					$settings[] = array(
+						'option_key' => $setting_key,
+						'option_value' => $setting_value,
+					);
+				}
 			}
 
 			$push_data['genesis-settings'] = $settings;
@@ -163,7 +165,12 @@ SyncDebug::log(__METHOD__ . "() handling '{$action}' action");
 			$this->_push_data = $input->post_raw('push_data', array());
 SyncDebug::log(__METHOD__ . '() found push_data information: ' . var_export($this->_push_data, TRUE));
 
-			foreach ($this->_push_data['genesis-settings'] as $setting) {
+			if (empty($this->_push_data['genesis-settings'])) {
+				$response->error_code(SyncGenesisApiRequest::ERROR_GENESIS_SETTINGS_NOT_FOUND);
+				return TRUE;            // return, signaling that the API request was processed
+			}
+
+			foreach ((array)$this->_push_data['genesis-settings'] as $setting) {
 				switch ($setting['option_key']) {
 				case 'genesis-settings':
 					$key = apply_filters('genesis_settings_field', $setting['option_key']);
