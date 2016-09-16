@@ -25,7 +25,7 @@ class SyncGenesisAjaxRequest
 	}
 
 	/**
-	 * Push Genesis ajax request
+	 * Push Genesis Settings ajax request
 	 *
 	 * @since 1.0.0
 	 * @param SyncApiResponse $resp The response object after the API request has been made
@@ -35,37 +35,37 @@ class SyncGenesisAjaxRequest
 	{
 		$input = new SyncInput();
 
-//		$menu_name = $input->post('menu_name', 0);
-//
-//		if (0 === $menu_name) {
-//			// No menu name. Return error message
-//			WPSiteSync_Genesis::get_instance()->load_class('genesisapirequest');
-//			$resp->error_code(SyncGenesisApiRequest::ERROR_MENU_NOT_FOUND);
-//			$resp->success(FALSE);
-//			return TRUE;        // return, signaling that we've handled the request
-//		}
-//
-//		$args = array('menu_name' => $menu_name);
-//		$api = new SyncApiRequest();
-//		$api_response = $api->api('pushmenu', $args);
-//
-//		// copy contents of SyncApiResponse object from API call into the Response object for AJAX call
-//		SyncDebug::log(__METHOD__ . '():' . __LINE__ . ' - returned from api() call; copying response');
-//		$resp->copy($api_response);
-//
-//		if (0 === $api_response->get_error_code()) {
-//			SyncDebug::log(' - no error, setting success');
-//			$resp->success(TRUE);
-//		} else {
-//			$resp->success(FALSE);
-//			SyncDebug::log(' - error code: ' . $api_response->get_error_code());
-//		}
+		$selected_genesis_settings = $input->post('selected_genesis_settings', 0);
+
+		if (0 === $selected_genesis_settings) {
+			// No Settings selected. Return error message
+			WPSiteSync_Genesis::get_instance()->load_class('genesisapirequest');
+			$resp->error_code(SyncGenesisApiRequest::ERROR_NO_GENESIS_SETTINGS_SELECTED);
+			$resp->success(FALSE);
+			return TRUE;        // return, signaling that we've handled the request
+		}
+
+		$args = array('selected_genesis_settings' => $selected_genesis_settings);
+		$api = new SyncApiRequest();
+		$api_response = $api->api('pushgenesis', $args);
+
+		// copy contents of SyncApiResponse object from API call into the Response object for AJAX call
+		SyncDebug::log(__METHOD__ . '():' . __LINE__ . ' - returned from api() call; copying response');
+		$resp->copy($api_response);
+
+		if (0 === $api_response->get_error_code()) {
+			SyncDebug::log(' - no error, setting success');
+			$resp->success(TRUE);
+		} else {
+			$resp->success(FALSE);
+			SyncDebug::log(' - error code: ' . $api_response->get_error_code());
+		}
 
 		return TRUE; // return, signaling that we've handled the request
 	}
 
 	/**
-	 * Pull Genesis ajax request
+	 * Pull Genesis Settings ajax request
 	 *
 	 * @since 1.0.0
 	 * @param SyncApiResponse $resp The response object after the API request has been made
@@ -75,31 +75,31 @@ class SyncGenesisAjaxRequest
 	{
 		$input = new SyncInput();
 
-//		$menu_name = $input->post('menu_name', 0);
-//
-//		if (0 === $menu_name) {
-//			// No menu name. Return error message
-//			WPSiteSync_Genesis::get_instance()->load_class('genesisapirequest');
-//			$resp->error_code(SyncGenesisApiRequest::ERROR_TARGET_MENU_NOT_FOUND);
-//			$resp->success(FALSE);
-//			return TRUE;        // return, signaling that we've handled the request
-//		}
-//
-//		$args = array('menu_name' => $menu_name);
-//		$api = new SyncApiRequest();
-//		$api_response = $api->api('pullmenu', $args);
-//
-//		// copy contents of SyncApiResponse object from API call into the Response object for AJAX call
-//		SyncDebug::log(__METHOD__ . '():' . __LINE__ . ' - returned from api() call; copying response');
-//		$resp->copy($api_response);
-//
-//		if (0 === $api_response->get_error_code()) {
-//			SyncDebug::log(' - no error, setting success');
-//			$resp->success(TRUE);
-//		} else {
-//			$resp->success(FALSE);
-//			SyncDebug::log(' - error code: ' . $api_response->get_error_code());
-//		}
+		$selected_genesis_settings = $input->post('selected_genesis_settings', 0);
+
+		if (0 === $selected_genesis_settings) {
+			// No settings selected. Return error message
+			WPSiteSync_Genesis::get_instance()->load_class('genesisapirequest');
+			$resp->error_code(SyncGenesisApiRequest::ERROR_NO_GENESIS_SETTINGS_SELECTED);
+			$resp->success(FALSE);
+			return TRUE;        // return, signaling that we've handled the request
+		}
+
+		$args = array('selected_genesis_settings' => $selected_genesis_settings);
+		$api = new SyncApiRequest();
+		$api_response = $api->api('pullgenesis', $args);
+
+		// copy contents of SyncApiResponse object from API call into the Response object for AJAX call
+		SyncDebug::log(__METHOD__ . '():' . __LINE__ . ' - returned from api() call; copying response');
+		$resp->copy($api_response);
+
+		if (0 === $api_response->get_error_code()) {
+			SyncDebug::log(' - no error, setting success');
+			$resp->success(TRUE);
+		} else {
+			$resp->success(FALSE);
+			SyncDebug::log(' - error code: ' . $api_response->get_error_code());
+		}
 
 		return TRUE; // return, signaling that we've handled the request
 	}

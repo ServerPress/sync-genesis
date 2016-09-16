@@ -1,0 +1,17 @@
+#spectrom_sync.sync-genesis-contents {
+	border: medium none;
+	margin: 1rem 0;
+	width: 26rem;
+}
+
+.sync-genesis-msgs {
+	margin: 1rem 0;
+	border: 1px solid #4accf6;
+	background: #fff;
+	padding: 5px 15px;
+}
+
+.sync-genesis-failure-msg {
+	color: red;
+	background: #fff;
+}

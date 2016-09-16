@@ -41,9 +41,11 @@ class SyncGenesisAdmin
 	public function admin_enqueue_scripts($hook_suffix)
 	{
 		wp_register_script('sync-genesis', WPSiteSync_Genesis::get_asset('js/sync-genesis.js'), array('sync'), WPSiteSync_Genesis::PLUGIN_VERSION, TRUE);
+		wp_register_style('sync-genesis', WPSiteSync_Genesis::get_asset('css/sync-genesis.css'), array('sync-admin'), WPSiteSync_Genesis::PLUGIN_VERSION);
 
 		if ('genesis_page_genesis-import-export' === $hook_suffix) {
 			wp_enqueue_script('sync-genesis');
+			wp_enqueue_style('sync-genesis');
 		}
 	}
 
@@ -60,12 +62,12 @@ class SyncGenesisAdmin
 			<div id="spectrom_sync" class="sync-genesis-contents">
 				<button class="sync-genesis-push button button-primary sync-button" type="button" title="<?php esc_html_e('Push Genesis Settings to the Target site', 'wpsitesync-genesis'); ?>">
 					<span class="sync-button-icon dashicons dashicons-migrate"></span>
-					<?php esc_html_e('Push to Target', 'wpsitesync-genesis'); ?>
+					<?php esc_html_e('Push Settings to Target', 'wpsitesync-genesis'); ?>
 				</button>
 				<?php if (class_exists('WPSiteSync_Pull') && WPSiteSync_Genesis::get_instance()->get_license()->check_license('sync_pull', WPSiteSync_Pull::PLUGIN_KEY, WPSiteSync_Pull::PLUGIN_NAME)) : ?>
-					<button class="sync-genesis-pull button button-secondary sync-button" type="button" title="<?php esc_html_e('Pull Genesis Settings from the Target site', 'wpsitesync-genesis'); ?>">
+					<button class="sync-genesis-pull button button-primary sync-button" type="button" title="<?php esc_html_e('Pull Genesis Settings from the Target site', 'wpsitesync-genesis'); ?>">
 						<span class="sync-button-icon sync-button-icon-rotate dashicons dashicons-migrate"></span>
-						<?php esc_html_e('Pull from Target', 'wpsitesync-genesis'); ?>
+						<?php esc_html_e('Pull Settings from Target', 'wpsitesync-genesis'); ?>
 					</button>
 				<?php endif; ?>
 				<?php wp_nonce_field('sync-genesis', '_sync_nonce'); ?>
@@ -74,9 +76,10 @@ class SyncGenesisAdmin
 						<?php esc_html_e('Synchronizing Genesis Settings...', 'wpsitesync-genesis'); ?>
 					</div>
 					<div class="sync-genesis-failure-msg">
-						<?php esc_html_e('Failed to Sync Menu.', 'wpsitesync-genesis'); ?>
-						<span class="sync-menu-failure-detail"></span>
-						<span class="sync-menu-failure-api"><?php esc_html_e('API Failure', 'wpsitesync-genesis'); ?></span>
+						<?php esc_html_e('Failed to Sync Genesis Settings.', 'wpsitesync-genesis'); ?>
+						<span class="sync-genesis-failure-detail"></span>
+						<span class="sync-genesis-failure-api"><?php esc_html_e('API Failure', 'wpsitesync-genesis'); ?></span>
+						<span class="sync-genesis-failure-select"><?php esc_html_e('Please select settings to sync.', 'wpsitesync-genesis'); ?></span>
 					</div>
 					<div class="sync-genesis-success-msg">
 						<?php esc_html_e('Successfully Synced Genesis Settings.', 'wpsitesync-genesis'); ?>

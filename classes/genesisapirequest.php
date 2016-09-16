@@ -11,8 +11,9 @@ class SyncGenesisApiRequest
 	private $_push_data;
 
 	const ERROR_GENESIS_SETTINGS_NOT_FOUND = 500;
+	const ERROR_NO_GENESIS_SETTINGS_SELECTED = 501;
 
-	const NOTICE_MENU_MODIFIED = 500;
+	const NOTICE_GENESIS_SETTINGS_MODIFIED = 500;
 
 	/**
 	 * Retrieve singleton class instance
@@ -39,7 +40,10 @@ class SyncGenesisApiRequest
 	{
 		switch ($code) {
 		case self::ERROR_GENESIS_SETTINGS_NOT_FOUND:
-			$message = __('', 'wpsitesync-genesis');
+			$message = __('No Genesis settings were found', 'wpsitesync-genesis');
+			break;
+		case self::ERROR_NO_GENESIS_SETTINGS_SELECTED:
+			$message = __('No Genesis settings were selected.', 'wpsitesync-genesis');
 			break;
 		}
 		return $message;
@@ -55,15 +59,15 @@ class SyncGenesisApiRequest
 	public function filter_notice_codes($message, $code)
 	{
 		switch ($code) {
-		case self::NOTICE_MENU_MODIFIED:
-			$message = __('', 'wpsitesync-genesis');
+		case self::NOTICE_GENESIS_SETTINGS_MODIFIED:
+			$message = __('Settings have been modified. Please save changes.', 'wpsitesync-genesis');
 			break;
 		}
 		return $message;
 	}
 
 	/**
-	 * Checks the API request if the action is to pull/push the menu
+	 * Checks the API request if the action is to pull/push the settings
 	 *
 	 * @param array $args The arguments array sent to SyncApiRequest::api()
 	 * @param string $action The API requested
@@ -72,39 +76,58 @@ class SyncGenesisApiRequest
 	 */
 	public function api_request($args, $action, $remote_args)
 	{
-		SyncDebug::log(__METHOD__ . '() action=' . $action);
+SyncDebug::log(__METHOD__ . '() action=' . $action);
 
 		$license = new SyncLicensing();
 		if (!$license->check_license('sync_genesis', WPSiteSync_Genesis::PLUGIN_KEY, WPSiteSync_Genesis::PLUGIN_NAME))
 			return $args;
 
 		if ('pushgenesis' === $action) {
-			SyncDebug::log(__METHOD__ . '() args=' . var_export($args, TRUE));
+SyncDebug::log(__METHOD__ . '() args=' . var_export($args, TRUE));
 
 			$push_data = array();
-//			$menu_name = $args['menu_name'];
-//			$menu_args = array(
-//				'numberofposts' => -1,
-//			);
-//
-//			$push_data['menu_items'] = wp_get_nav_menu_items($menu_name, $menu_args);
-//			$push_data['site_key'] = $args['auth']['site_key'];
-//			$push_data['pull'] = FALSE;
-//
-//			// Get menu locations
-//			$menu_object = wp_get_nav_menu_object($menu_name);
-//			$menu_id = $menu_object->term_id;
-//			$menu_locations = get_nav_menu_locations();
-//
-//			if (!empty($menu_locations) && in_array($menu_id, $menu_locations)) {
-//				$push_data['menu_locations'] = array_keys($menu_locations, $menu_id);
-//			}
+			$settings = array();
+			$selected = $args['selected_genesis_settings'];
 
-			SyncDebug::log(__METHOD__ . '() push_data=' . var_export($push_data, TRUE));
+			$options = array(
+				'theme' => array(
+					'label' => __('Theme Settings', 'genesis'),
+					'settings-field' => GENESIS_SETTINGS_FIELD,
+				),
+				'seo' => array(
+					'label' => __('SEO Settings', 'genesis'),
+					'settings-field' => GENESIS_SEO_SETTINGS_FIELD,
+				)
+			);
+
+			$options = apply_filters('genesis_export_options', $options);
+
+			$push_data['site_key'] = $args['auth']['site_key'];
+			$push_data['pull'] = FALSE;
+
+			// Get settings
+			foreach ((array)$selected as $setting) {
+				$setting = str_replace('genesis-export[', '', rtrim($setting, ']'));
+SyncDebug::log(__METHOD__ . '() setting=' . var_export($setting, TRUE));
+				// Grab settings field name (key)
+				$setting_key = $options[$setting]['settings-field'];
+
+				// Grab all of the settings from the database under that key
+				$setting_value = get_option($setting_key);
+
+				$settings[] = array(
+					'option_key' => $setting_key,
+					'option_value' => $setting_value,
+				);
+			}
+
+			$push_data['genesis-settings'] = $settings;
+
+SyncDebug::log(__METHOD__ . '() push_data=' . var_export($push_data, TRUE));
 
 			$args['push_data'] = $push_data;
 		} else if ('pullgenesis' === $action) {
-			SyncDebug::log(__METHOD__ . '() args=' . var_export($args, TRUE));
+SyncDebug::log(__METHOD__ . '() args=' . var_export($args, TRUE));
 		}
 
 		// return the filter value
@@ -121,7 +144,7 @@ class SyncGenesisApiRequest
 	 */
 	public function api_controller_request($return, $action, SyncApiResponse $response)
 	{
-		SyncDebug::log(__METHOD__ . "() handling '{$action}' action");
+SyncDebug::log(__METHOD__ . "() handling '{$action}' action");
 
 		$license = new SyncLicensing();
 		if (!$license->check_license('sync_genesis', WPSiteSync_Genesis::PLUGIN_KEY, WPSiteSync_Genesis::PLUGIN_NAME))
@@ -129,172 +152,71 @@ class SyncGenesisApiRequest
 
 		if ('pushgenesis' === $action) {
 			$input = new SyncInput();
-//			$menu_name = $input->post('menu_name', 0);
-//
-//			// check api parameters
-//			if (0 === $menu_name) {
-//				$response->error_code(SyncGenesisApiRequest::ERROR_TARGET_MENU_NOT_FOUND);
-//				return TRUE;            // return, signaling that the API request was processed
-//			}
-//
-//			$this->_push_data = $input->post_raw('push_data', array());
-//			SyncDebug::log(__METHOD__ . '() found push_data information: ' . var_export($this->_push_data, TRUE));
-//
-//			// Check if post_type items exist
-//			$post_items_exist = $this->check_post_type_items_exists($this->_push_data['pull']);
-//			if (FALSE !== $post_items_exist) {
-//				$response->error_code(SyncGenesisApiRequest::ERROR_TARGET_MENU_ITEMS_NOT_FOUND, $post_items_exist);
-//				return TRUE;            // return, signaling that the API request was processed
-//			}
-//
-//			// Check if menu exists
-//			$menu_exists = wp_get_nav_menu_object($menu_name);
-//
-//			// If menu doesn't exist, create it
-//			if (!$menu_exists) {
-//				$menu_id = wp_create_nav_menu($menu_name);
-//				SyncDebug::log('created menu');
-//			} else {
-//				$menu_id = $menu_exists->term_id;
-//			}
-//
-//			$menu_args = array(
-//				'numberofposts' => -1,
-//			);
-//			$current_menu_items = wp_get_nav_menu_items($menu_id, $menu_args);
-//
-//			// Get post_names
-//			$push_slugs = wp_list_pluck($this->_push_data['menu_items'], 'post_name', 'db_id');
-//
-//			// If there are existing menu items, process them first
-//			if (FALSE !== $current_menu_items && is_array($current_menu_items) && !empty($current_menu_items)) {
-//
-//				foreach ($current_menu_items as $item) {
-//
-//					$item_exists = array_search($item->post_name, $push_slugs);
-//
-//					SyncDebug::log(__METHOD__ . '() item exists: ' . var_export($item_exists, TRUE));
-//
-//					// If the current item doesn't match a title in the push data, delete it
-//					if (FALSE === $item_exists) {
-//						wp_delete_post($item->db_id);
-//						SyncDebug::log(__METHOD__ . '() item deleted: ' . var_export($item_exists, TRUE));
-//						continue;
-//					}
-//
-//					// Get push item key
-//					$push_key = $this->get_menu_item_key($this->_push_data, $item->post_name, 'post_name');
-//
-//					if (FALSE !== $push_key && NULL !== $push_key) {
-//						$item_args = $this->set_menu_item_args($this->_push_data, $push_key);
-//
-//						// Update the item
-//						$item_id = wp_update_nav_menu_item($menu_id, $item->db_id, $item_args);
-//						update_post_meta($item_id, 'sync_menu_original_id', $this->_push_data['menu_items'][$push_key]['db_id']);
-//
-//						if (is_wp_error($item_id)) {
-//							$response->error_code(SyncGenesisApiRequest::ERROR_MENU_ITEM_NOT_MODIFIED);
-//							return TRUE;            // return, signaling that the API request was processed
-//						}
-//						SyncDebug::log(__METHOD__ . '() item updated: ' . var_export($item_id, TRUE));
-//					}
-//				}
-//
-//				// Retrieve current menu items again
-//				$current_slugs = wp_list_pluck($current_menu_items, 'post_name', 'db_id');
-//				$new_items = array_diff($push_slugs, $current_slugs);
-//
-//				// Add any new menu items
-//				foreach ($new_items as $key => $item) {
-//					// Get push menu item key
-//					$push_key = $this->get_menu_item_key($this->_push_data, $item, 'post_name');
-//
-//					if (FALSE !== $push_key && NULL !== $push_key) {
-//
-//						$item_args = $this->set_menu_item_args($this->_push_data, $push_key);
-//
-//						$item_id = wp_update_nav_menu_item($menu_id, 0, $item_args);
-//						update_post_meta($item_id, 'sync_menu_original_id', $this->_push_data['menu_items'][$push_key]['db_id']);
-//
-//						if (is_wp_error($item_id)) {
-//							$response->error_code(SyncGenesisApiRequest::ERROR_MENU_ITEM_NOT_ADDED);
-//							return TRUE;            // return, signaling that the API request was processed
-//						}
-//						SyncDebug::log(__METHOD__ . '() item added: ' . var_export($item_id, TRUE));
-//					}
-//				}
-//			} else {
-//				// Add all menu items
-//				foreach ($this->_push_data['menu_items'] as $item) {
-//					$item_args = array(
-//						'menu-item-title' => $item['title'],
-//						'menu-item-classes' => implode(' ', $item['classes']),
-//						'menu-item-url' => $item['url'],
-//						'menu-item-status' => $item['post_status'],
-//						'menu-item-object-id' => $item['object_id'],
-//						'menu-item-object' => $item['object'],
-//						'menu-item-parent-id' => $item['menu_item_parent'],
-//						'menu-item-position' => $item['menu_order'],
-//						'menu-item-type' => $item['type'],
-//						'menu-item-description' => $item['description'],
-//						'menu-item-attr-title' => $item['attr_title'],
-//						'menu-item-target' => $item['target'],
-//						'menu-item-xfn' => $item['xfn'],
-//					);
-//
-//					$item_id = wp_update_nav_menu_item($menu_id, 0, $item_args);
-//					update_post_meta($item_id, 'sync_menu_original_id', $item['db_id']);
-//
-//					if (is_wp_error($item_id)) {
-//						$response->error_code(SyncGenesisApiRequest::ERROR_MENU_ITEM_NOT_ADDED);
-//						return TRUE;            // return, signaling that the API request was processed
-//					}
-//					SyncDebug::log(__METHOD__ . '() item added: ' . var_export($item_id, TRUE));
-//				}
-//			}
-//
-//			// Check if any parent_ids need updated
-//			$this->set_parent_ids($menu_id);
-//
-//			// Remove existing locations for the menu
-//			$locations = get_nav_menu_locations();
-//			foreach ($locations as $key => $value) {
-//				if ($menu_id === $value) {
-//					unset($locations[$key]);
-//				}
-//			}
-//
-//			// Set menu location
-//			if (array_key_exists('menu_locations', $this->_push_data)) {
-//				foreach ($this->_push_data['menu_locations'] as $location) {
-//					$locations[$location] = $menu_id;
-//				}
-//			}
-//			set_theme_mod('nav_menu_locations', $locations);
+			$selected_genesis_settings = $input->post('selected_genesis_settings', 0);
+
+			// check api parameters
+			if (0 === $selected_genesis_settings) {
+				$response->error_code(SyncGenesisApiRequest::ERROR_NO_GENESIS_SETTINGS_SELECTED);
+				return TRUE;            // return, signaling that the API request was processed
+			}
+
+			$this->_push_data = $input->post_raw('push_data', array());
+SyncDebug::log(__METHOD__ . '() found push_data information: ' . var_export($this->_push_data, TRUE));
+
+			foreach ($this->_push_data['genesis-settings'] as $setting) {
+				switch ($setting['option_key']) {
+				case 'genesis-settings':
+					$key = apply_filters('genesis_settings_field', $setting['option_key']);
+					break;
+				case 'genesis-seo-settings':
+					$key = apply_filters('genesis_seo_settings_field', $setting['option_key']);
+					break;
+				default:
+					$key = $setting['option_key'];
+					break;
+				}
+				update_option($key, $setting['option_value']);
+			}
 
 			$return = TRUE; // tell the SyncApiController that the request was handled
 		} else if ('pullgenesis' === $action) {
 			$input = new SyncInput();
-//			$menu_name = $input->post('menu_name', 0);
-//			$pull_data = array();
-//			$menu_args = array(
-//				'numberofposts' => -1,
-//			);
-//
-//			$pull_data['menu_items'] = wp_get_nav_menu_items($menu_name, $menu_args);
-//
-//			// Get menu locations
-//			$menu_object = wp_get_nav_menu_object($menu_name);
-//			$menu_id = $menu_object->term_id;
-//			$menu_locations = get_nav_menu_locations();
-//
-//			if (!empty($menu_locations) && in_array($menu_id, $menu_locations)) {
-//				$pull_data['menu_locations'] = array_keys($menu_locations, $menu_id);
-//			}
-//
-//			$response->set('pull_data', $pull_data); // add all the post information to the ApiResponse object
-//			$response->set('site_key', SyncOptions::get('site_key'));
-//			SyncDebug::log(__METHOD__ . '():' . __LINE__ . ' - response data=' . var_export($response, TRUE));
+			$selected = $input->post('selected_genesis_settings', 0);
+			$pull_data = array();
+			$settings = array();
+
+			$options = array(
+				'theme' => array(
+					'label' => __('Theme Settings', 'genesis'),
+					'settings-field' => GENESIS_SETTINGS_FIELD,
+				),
+				'seo' => array(
+					'label' => __('SEO Settings', 'genesis'),
+					'settings-field' => GENESIS_SEO_SETTINGS_FIELD,
+				)
+			);
+			$options = apply_filters('genesis_export_options', $options);
+
+			// Get settings
+			foreach ((array)$selected as $setting) {
+				$setting = str_replace('genesis-export[', '', rtrim($setting, ']'));
+				// Grab settings field name (key)
+				$setting_key = $options[$setting]['settings-field'];
+
+				// Grab all of the settings from the database under that key
+				$setting_value = get_option($setting_key);
+
+				$settings[] = array(
+					'option_key' => $setting_key,
+					'option_value' => $setting_value,
+				);
+			}
+
+			$pull_data['genesis-settings'] = $settings;
+
+			$response->set('pull_data', $pull_data); // add all the post information to the ApiResponse object
+			$response->set('site_key', SyncOptions::get('site_key'));
+SyncDebug::log(__METHOD__ . '():' . __LINE__ . ' - response data=' . var_export($response, TRUE));
 
 			$return = TRUE; // tell the SyncApiController that the request was handled
 		}
@@ -307,25 +229,25 @@ class SyncGenesisApiRequest
 	 *
 	 * @param string $action The API name, i.e. 'push' or 'pull'
 	 * @param array $remote_args The arguments sent to SyncApiRequest::api()
-	 * @param SyncApiResponse $response The response object after the API requesst has been made
+	 * @param SyncApiResponse $response The response object after the API request has been made
 	 */
 	public function api_response($action, $remote_args, $response)
 	{
-		SyncDebug::log(__METHOD__ . "('{$action}')");
+SyncDebug::log(__METHOD__ . "('{$action}')");
 
 		if ('pushgenesis' === $action) {
-			SyncDebug::log(__METHOD__ . '() response from API request: ' . var_export($response, TRUE));
+SyncDebug::log(__METHOD__ . '() response from API request: ' . var_export($response, TRUE));
 
 			$api_response = NULL;
 
 			if (isset($response->response)) {
-				SyncDebug::log(__METHOD__ . '() decoding response: ' . var_export($response->response, TRUE));
+SyncDebug::log(__METHOD__ . '() decoding response: ' . var_export($response->response, TRUE));
 				$api_response = $response->response;
 			} else {
-				SyncDebug::log(__METHOD__ . '() no reponse->response element');
+SyncDebug::log(__METHOD__ . '() no reponse->response element');
 			}
 
-			SyncDebug::log(__METHOD__ . '() api response body=' . var_export($api_response, TRUE));
+SyncDebug::log(__METHOD__ . '() api response body=' . var_export($api_response, TRUE));
 
 			if (0 === $response->get_error_code()) {
 				$response->success(TRUE);
@@ -333,31 +255,31 @@ class SyncGenesisApiRequest
 			}
 
 		} else if ('pullgenesis' === $action) {
-			SyncDebug::log(__METHOD__ . '() response from API request: ' . var_export($response, TRUE));
+SyncDebug::log(__METHOD__ . '() response from API request: ' . var_export($response, TRUE));
 
 			$api_response = NULL;
 
 			if (isset($response->response)) {
-				SyncDebug::log(__METHOD__ . '() decoding response: ' . var_export($response->response, TRUE));
+SyncDebug::log(__METHOD__ . '() decoding response: ' . var_export($response->response, TRUE));
 				$api_response = $response->response;
 			} else {
-				SyncDebug::log(__METHOD__ . '() no response->response element');
+SyncDebug::log(__METHOD__ . '() no response->response element');
 			}
 
-			SyncDebug::log(__METHOD__ . '() api response body=' . var_export($api_response, TRUE));
+SyncDebug::log(__METHOD__ . '() api response body=' . var_export($api_response, TRUE));
 
 			if (NULL !== $api_response) {
 				$save_post = $_POST;
 
 				// convert the pull data into an array
 				$pull_data = json_decode(json_encode($api_response->data->pull_data), TRUE); // $response->response->data->pull_data;
-				SyncDebug::log(__METHOD__ . '():' . __LINE__ . ' - pull data=' . var_export($pull_data, TRUE));
+SyncDebug::log(__METHOD__ . '():' . __LINE__ . ' - pull data=' . var_export($pull_data, TRUE));
 				$site_key = $api_response->data->site_key; // $pull_data->site_key;
 				$target_url = SyncOptions::get('target');
 				$pull_data['site_key'] = $site_key;
 				$pull_data['pull'] = TRUE;
 
-				$_POST['menu_name'] = $_REQUEST['menu_name']; // used by SyncApiController->push() to identify target post
+				$_POST['selected_genesis_settings'] = $_REQUEST['selected_genesis_settings'];
 				$_POST['push_data'] = $pull_data;
 				$_POST['action'] = 'pushgenesis';
 
@@ -370,10 +292,10 @@ class SyncGenesisApiRequest
 					'auth' => 0,
 				);
 
-				SyncDebug::log(__METHOD__ . '() creating controller with: ' . var_export($args, TRUE));
+SyncDebug::log(__METHOD__ . '() creating controller with: ' . var_export($args, TRUE));
 				$this->_push_controller = new SyncApiController($args);
-				SyncDebug::log(__METHOD__ . '():' . __LINE__ . ' - returned from controller');
-				SyncDebug::log(__METHOD__ . '():' . __LINE__ . ' - response=' . var_export($response, TRUE));
+SyncDebug::log(__METHOD__ . '():' . __LINE__ . ' - returned from controller');
+SyncDebug::log(__METHOD__ . '():' . __LINE__ . ' - response=' . var_export($response, TRUE));
 
 				$_POST = $save_post;
 
