@@ -86,12 +86,12 @@ if (!class_exists('WPSiteSync_Genesis')) {
 		 */
 		public function load_class($name, $create = FALSE)
 		{
-			$file = dirname(__FILE__) . '/classes/' . strtolower($name) . '.php';
-			if (file_exists($file))
+			if (file_exists($file = dirname(__FILE__) . '/classes/' . strtolower($name) . '.php')) {
 				require_once($file);
-			if ($create) {
-				$instance = 'Sync' . $name;
-				return new $instance();
+				if ($create) {
+					$instance = 'Sync' . $name;
+					return new $instance();
+				}
 			}
 			return FALSE;
 		}

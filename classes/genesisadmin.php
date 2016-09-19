@@ -64,6 +64,7 @@ class SyncGenesisAdmin
 					<span class="sync-button-icon dashicons dashicons-migrate"></span>
 					<?php esc_html_e('Push Settings to Target', 'wpsitesync-genesis'); ?>
 				</button>
+<?php			// TODO: use braces, not : ... endif ?>
 				<?php if (class_exists('WPSiteSync_Pull') && WPSiteSync_Genesis::get_instance()->get_license()->check_license('sync_pull', WPSiteSync_Pull::PLUGIN_KEY, WPSiteSync_Pull::PLUGIN_NAME)) : ?>
 					<button class="sync-genesis-pull button button-primary sync-button" type="button" title="<?php esc_html_e('Pull Genesis Settings from the Target site', 'wpsitesync-genesis'); ?>">
 						<span class="sync-button-icon sync-button-icon-rotate dashicons dashicons-migrate"></span>
@@ -103,18 +104,19 @@ class SyncGenesisAdmin
 	{
 		SyncDebug::log(__METHOD__ . '() operation="' . $operation . '"');
 
+		// TODO: use SyncLicensing instaced created in WPSiteSync_Genesis
 		$license = new SyncLicensing();
 		if (!$license->check_license('sync_genesis', WPSiteSync_Genesis::PLUGIN_KEY, WPSiteSync_Genesis::PLUGIN_NAME))
 			return $found;
 
 		if ('pushgenesis' === $operation) {
-			SyncDebug::log(' - post=' . var_export($_POST, TRUE));
+SyncDebug::log(' - post=' . var_export($_POST, TRUE));
 
 			$ajax = WPSiteSync_Genesis::get_instance()->load_class('genesisajaxrequest', TRUE);
 			$ajax->push_genesis($resp);
 			$found = TRUE;
 		} else if ('pullgenesis' === $operation) {
-			SyncDebug::log(' - post=' . var_export($_POST, TRUE));
+SyncDebug::log(' - post=' . var_export($_POST, TRUE));
 
 			$ajax = WPSiteSync_Genesis::get_instance()->load_class('genesisajaxrequest', TRUE);
 			$ajax->pull_genesis($resp);

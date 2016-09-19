@@ -22,6 +22,7 @@ class SyncGenesisApiRequest
 	 * @static
 	 * @return null|SyncGenesisAdmin instance reference to plugin
 	 */
+	// TODO: this class does not need to be a singleton. also, this is loaded from WPSiteSync->load_class() as an instance anyway
 	public static function get_instance()
 	{
 		if (NULL === self::$_instance)
@@ -78,6 +79,7 @@ class SyncGenesisApiRequest
 	{
 SyncDebug::log(__METHOD__ . '() action=' . $action);
 
+		// TODO: don't create a new SyncLicensing instance- use the one in WPSiteSync_Genesis->_license
 		$license = new SyncLicensing();
 		if (!$license->check_license('sync_genesis', WPSiteSync_Genesis::PLUGIN_KEY, WPSiteSync_Genesis::PLUGIN_NAME))
 			return $args;
@@ -106,6 +108,7 @@ SyncDebug::log(__METHOD__ . '() args=' . var_export($args, TRUE));
 			$push_data['pull'] = FALSE;
 
 			// Get settings
+			// TODO: create $selected as an array so you don't have to keep casting it to an array
 			foreach ((array)$selected as $setting) {
 				$setting = str_replace('genesis-export[', '', rtrim($setting, ']'));
 SyncDebug::log(__METHOD__ . '() setting=' . var_export($setting, TRUE));
@@ -129,6 +132,7 @@ SyncDebug::log(__METHOD__ . '() push_data=' . var_export($push_data, TRUE));
 
 			$args['push_data'] = $push_data;
 		} else if ('pullgenesis' === $action) {
+			// TODO: is Pull implemented for Genesis? If so and this isn't doing anything, it can be removed.
 SyncDebug::log(__METHOD__ . '() args=' . var_export($args, TRUE));
 		}
 
@@ -148,11 +152,14 @@ SyncDebug::log(__METHOD__ . '() args=' . var_export($args, TRUE));
 	{
 SyncDebug::log(__METHOD__ . "() handling '{$action}' action");
 
+		// TODO: use the WPSiteSync_Genesis->_licensing instance already created
 		$license = new SyncLicensing();
 		if (!$license->check_license('sync_genesis', WPSiteSync_Genesis::PLUGIN_KEY, WPSiteSync_Genesis::PLUGIN_NAME))
+			// TODO: this should return $return, not TRUE. TRUE indicates that the action has been handled and it has not.
 			return TRUE;
 
 		if ('pushgenesis' === $action) {
+			// TODO: have this class extend SyncInput and you don't need to instantiate
 			$input = new SyncInput();
 			$selected_genesis_settings = $input->post('selected_genesis_settings', 0);
 
@@ -170,6 +177,7 @@ SyncDebug::log(__METHOD__ . '() found push_data information: ' . var_export($thi
 				return TRUE;            // return, signaling that the API request was processed
 			}
 
+			// TODO: this needs to be created as an array rather than casted to an array in several places
 			foreach ((array)$this->_push_data['genesis-settings'] as $setting) {
 				switch ($setting['option_key']) {
 				case 'genesis-settings':
@@ -188,6 +196,7 @@ SyncDebug::log(__METHOD__ . '() found push_data information: ' . var_export($thi
 			$return = TRUE; // tell the SyncApiController that the request was handled
 		} else if ('pullgenesis' === $action) {
 			$input = new SyncInput();
+			// TODO: use default value of array() rather than 0- then you don't need to cast it later
 			$selected = $input->post('selected_genesis_settings', 0);
 			$pull_data = array();
 			$settings = array();
@@ -259,8 +268,8 @@ SyncDebug::log(__METHOD__ . '() api response body=' . var_export($api_response, 
 			if (0 === $response->get_error_code()) {
 				$response->success(TRUE);
 			} else {
+				// TODO: remove else when unused
 			}
-
 		} else if ('pullgenesis' === $action) {
 SyncDebug::log(__METHOD__ . '() response from API request: ' . var_export($response, TRUE));
 

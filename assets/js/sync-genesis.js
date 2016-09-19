@@ -119,7 +119,8 @@ WPSiteSyncContent_Genesis.prototype.push_genesis = function (settings)
 
 /**
  * Pulls Genesis settings from target site
- * @param genesis_name
+	// TODO: document parameter
+ * @param settings
  */
 WPSiteSyncContent_Genesis.prototype.pull_genesis = function (settings)
 {

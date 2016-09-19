@@ -33,6 +33,7 @@ class SyncGenesisAjaxRequest
 	 */
 	public function push_genesis($resp)
 	{
+		// TODO: make this class extend SyncInput and you can remove this instantiation
 		$input = new SyncInput();
 
 		$selected_genesis_settings = $input->post('selected_genesis_settings', 0);
@@ -41,7 +42,7 @@ class SyncGenesisAjaxRequest
 			// No Settings selected. Return error message
 			WPSiteSync_Genesis::get_instance()->load_class('genesisapirequest');
 			$resp->error_code(SyncGenesisApiRequest::ERROR_NO_GENESIS_SETTINGS_SELECTED);
-			$resp->success(FALSE);
+			$resp->success(FALSE);	// TODO: not needed, $resp->error_code() also sets success(FALSE)
 			return TRUE;        // return, signaling that we've handled the request
 		}
 
@@ -50,7 +51,7 @@ class SyncGenesisAjaxRequest
 		$api_response = $api->api('pushgenesis', $args);
 
 		// copy contents of SyncApiResponse object from API call into the Response object for AJAX call
-		SyncDebug::log(__METHOD__ . '():' . __LINE__ . ' - returned from api() call; copying response');
+SyncDebug::log(__METHOD__ . '():' . __LINE__ . ' - returned from api() call; copying response');
 		$resp->copy($api_response);
 
 		if (0 === $api_response->get_error_code()) {
@@ -73,6 +74,7 @@ class SyncGenesisAjaxRequest
 	 */
 	public function pull_genesis($resp)
 	{
+		// TODO: extend SyncInput and this is not necessary
 		$input = new SyncInput();
 
 		$selected_genesis_settings = $input->post('selected_genesis_settings', 0);
@@ -81,7 +83,7 @@ class SyncGenesisAjaxRequest
 			// No settings selected. Return error message
 			WPSiteSync_Genesis::get_instance()->load_class('genesisapirequest');
 			$resp->error_code(SyncGenesisApiRequest::ERROR_NO_GENESIS_SETTINGS_SELECTED);
-			$resp->success(FALSE);
+			$resp->success(FALSE);	// TODO: not needed, $resp->error_code() sets success(FALSE)
 			return TRUE;        // return, signaling that we've handled the request
 		}
 
@@ -94,11 +96,11 @@ class SyncGenesisAjaxRequest
 		$resp->copy($api_response);
 
 		if (0 === $api_response->get_error_code()) {
-			SyncDebug::log(' - no error, setting success');
+SyncDebug::log(' - no error, setting success');
 			$resp->success(TRUE);
 		} else {
 			$resp->success(FALSE);
-			SyncDebug::log(' - error code: ' . $api_response->get_error_code());
+SyncDebug::log(' - error code: ' . $api_response->get_error_code());
 		}
 
 		return TRUE; // return, signaling that we've handled the request
