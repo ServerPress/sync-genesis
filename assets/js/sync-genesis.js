@@ -76,7 +76,7 @@ WPSiteSyncContent_Genesis.prototype.set_message = function (type, msg)
 
 /**
  * Push Genesis settings from target site
- * @param settings
+ * @param {array} settings The checked export values.
  */
 WPSiteSyncContent_Genesis.prototype.push_genesis = function (settings)
 {
@@ -119,8 +119,7 @@ WPSiteSyncContent_Genesis.prototype.push_genesis = function (settings)
 
 /**
  * Pulls Genesis settings from target site
-	// TODO: document parameter
- * @param settings
+ * @param {array} settings The checked export values.
  */
 WPSiteSyncContent_Genesis.prototype.pull_genesis = function (settings)
 {
