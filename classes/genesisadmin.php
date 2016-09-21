@@ -64,13 +64,12 @@ class SyncGenesisAdmin
 					<span class="sync-button-icon dashicons dashicons-migrate"></span>
 					<?php esc_html_e('Push Settings to Target', 'wpsitesync-genesis'); ?>
 				</button>
-<?php			// TODO: use braces, not : ... endif ?>
-				<?php if (class_exists('WPSiteSync_Pull') && WPSiteSync_Genesis::get_instance()->get_license()->check_license('sync_pull', WPSiteSync_Pull::PLUGIN_KEY, WPSiteSync_Pull::PLUGIN_NAME)) : ?>
+				<?php if (class_exists('WPSiteSync_Pull') && WPSiteSync_Genesis::get_instance()->get_license()->check_license('sync_pull', WPSiteSync_Pull::PLUGIN_KEY, WPSiteSync_Pull::PLUGIN_NAME)) { ?>
 					<button class="sync-genesis-pull button button-primary sync-button" type="button" title="<?php esc_html_e('Pull Genesis Settings from the Target site', 'wpsitesync-genesis'); ?>">
 						<span class="sync-button-icon sync-button-icon-rotate dashicons dashicons-migrate"></span>
 						<?php esc_html_e('Pull Settings from Target', 'wpsitesync-genesis'); ?>
 					</button>
-				<?php endif; ?>
+				<?php } ?>
 				<?php wp_nonce_field('sync-genesis', '_sync_nonce'); ?>
 				<div class="sync-genesis-msgs" style="display:none">
 					<div class="sync-genesis-loading-indicator">
