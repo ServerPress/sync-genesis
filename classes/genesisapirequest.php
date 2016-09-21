@@ -5,30 +5,14 @@
  * @package Sync
  * @author WPSiteSync
  */
-class SyncGenesisApiRequest
+class SyncGenesisApiRequest extends SyncInput
 {
-	private static $_instance = NULL;
 	private $_push_data;
 
 	const ERROR_GENESIS_SETTINGS_NOT_FOUND = 500;
 	const ERROR_NO_GENESIS_SETTINGS_SELECTED = 501;
 
 	const NOTICE_GENESIS_SETTINGS_MODIFIED = 500;
-
-	/**
-	 * Retrieve singleton class instance
-	 *
-	 * @since 1.0.0
-	 * @static
-	 * @return null|SyncGenesisAdmin instance reference to plugin
-	 */
-	// TODO: this class does not need to be a singleton. also, this is loaded from WPSiteSync->load_class() as an instance anyway
-	public static function get_instance()
-	{
-		if (NULL === self::$_instance)
-			self::$_instance = new self();
-		return self::$_instance;
-	}
 
 	/**
 	 * Filters the errors list, adding SyncGenesis specific code-to-string values
@@ -107,8 +91,7 @@ SyncDebug::log(__METHOD__ . '() args=' . var_export($args, TRUE));
 			$push_data['pull'] = FALSE;
 
 			// Get settings
-			// TODO: create $selected as an array so you don't have to keep casting it to an array
-			foreach ((array)$selected as $setting) {
+			foreach ($selected as $setting) {
 				$setting = str_replace('genesis-export[', '', rtrim($setting, ']'));
 SyncDebug::log(__METHOD__ . '() setting=' . var_export($setting, TRUE));
 				// Grab settings field name (key)
@@ -130,9 +113,6 @@ SyncDebug::log(__METHOD__ . '() setting=' . var_export($setting, TRUE));
 SyncDebug::log(__METHOD__ . '() push_data=' . var_export($push_data, TRUE));
 
 			$args['push_data'] = $push_data;
-		} else if ('pullgenesis' === $action) {
-			// TODO: is Pull implemented for Genesis? If so and this isn't doing anything, it can be removed.
-SyncDebug::log(__METHOD__ . '() args=' . var_export($args, TRUE));
 		}
 
 		// return the filter value
@@ -153,13 +133,10 @@ SyncDebug::log(__METHOD__ . "() handling '{$action}' action");
 
 		$license = WPSiteSync_Genesis::get_instance()->get_license();
 		if (!$license)
-			// TODO: this should return $return, not TRUE. TRUE indicates that the action has been handled and it has not.
-			return TRUE;
+			return $return;
 
 		if ('pushgenesis' === $action) {
-			// TODO: have this class extend SyncInput and you don't need to instantiate
-			$input = new SyncInput();
-			$selected_genesis_settings = $input->post('selected_genesis_settings', 0);
+			$selected_genesis_settings = $this->post('selected_genesis_settings', 0);
 
 			// check api parameters
 			if (0 === $selected_genesis_settings) {
@@ -167,7 +144,7 @@ SyncDebug::log(__METHOD__ . "() handling '{$action}' action");
 				return TRUE;            // return, signaling that the API request was processed
 			}
 
-			$this->_push_data = $input->post_raw('push_data', array());
+			$this->_push_data = $this->post_raw('push_data', array());
 SyncDebug::log(__METHOD__ . '() found push_data information: ' . var_export($this->_push_data, TRUE));
 
 			if (empty($this->_push_data['genesis-settings'])) {
@@ -175,8 +152,7 @@ SyncDebug::log(__METHOD__ . '() found push_data information: ' . var_export($thi
 				return TRUE;            // return, signaling that the API request was processed
 			}
 
-			// TODO: this needs to be created as an array rather than casted to an array in several places
-			foreach ((array)$this->_push_data['genesis-settings'] as $setting) {
+			foreach ($this->_push_data['genesis-settings'] as $setting) {
 				switch ($setting['option_key']) {
 				case 'genesis-settings':
 					$key = apply_filters('genesis_settings_field', $setting['option_key']);
@@ -193,9 +169,7 @@ SyncDebug::log(__METHOD__ . '() found push_data information: ' . var_export($thi
 
 			$return = TRUE; // tell the SyncApiController that the request was handled
 		} else if ('pullgenesis' === $action) {
-			$input = new SyncInput();
-			// TODO: use default value of array() rather than 0- then you don't need to cast it later
-			$selected = $input->post('selected_genesis_settings', 0);
+			$selected = $this->post('selected_genesis_settings', array());
 			$pull_data = array();
 			$settings = array();
 
@@ -212,7 +186,7 @@ SyncDebug::log(__METHOD__ . '() found push_data information: ' . var_export($thi
 			$options = apply_filters('genesis_export_options', $options);
 
 			// Get settings
-			foreach ((array)$selected as $setting) {
+			foreach ($selected as $setting) {
 				$setting = str_replace('genesis-export[', '', rtrim($setting, ']'));
 				// Grab settings field name (key)
 				$setting_key = $options[$setting]['settings-field'];
@@ -265,8 +239,6 @@ SyncDebug::log(__METHOD__ . '() api response body=' . var_export($api_response, 
 
 			if (0 === $response->get_error_code()) {
 				$response->success(TRUE);
-			} else {
-				// TODO: remove else when unused
 			}
 		} else if ('pullgenesis' === $action) {
 SyncDebug::log(__METHOD__ . '() response from API request: ' . var_export($response, TRUE));
