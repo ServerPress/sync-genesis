@@ -151,9 +151,8 @@ SyncDebug::log(__METHOD__ . '() args=' . var_export($args, TRUE));
 	{
 SyncDebug::log(__METHOD__ . "() handling '{$action}' action");
 
-		// TODO: use the WPSiteSync_Genesis->_licensing instance already created
-		$license = new SyncLicensing();
-		if (!$license->check_license('sync_genesis', WPSiteSync_Genesis::PLUGIN_KEY, WPSiteSync_Genesis::PLUGIN_NAME))
+		$license = WPSiteSync_Genesis::get_instance()->get_license();
+		if (!$license)
 			// TODO: this should return $return, not TRUE. TRUE indicates that the action has been handled and it has not.
 			return TRUE;
 
