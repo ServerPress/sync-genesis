@@ -79,9 +79,8 @@ class SyncGenesisApiRequest
 	{
 SyncDebug::log(__METHOD__ . '() action=' . $action);
 
-		// TODO: don't create a new SyncLicensing instance- use the one in WPSiteSync_Genesis->_license
-		$license = new SyncLicensing();
-		if (!$license->check_license('sync_genesis', WPSiteSync_Genesis::PLUGIN_KEY, WPSiteSync_Genesis::PLUGIN_NAME))
+		$license = WPSiteSync_Genesis::get_instance()->get_license();
+		if (!$license)
 			return $args;
 
 		if ('pushgenesis' === $action) {

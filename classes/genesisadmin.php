@@ -103,9 +103,8 @@ class SyncGenesisAdmin
 	{
 		SyncDebug::log(__METHOD__ . '() operation="' . $operation . '"');
 
-		// TODO: use SyncLicensing instaced created in WPSiteSync_Genesis
-		$license = new SyncLicensing();
-		if (!$license->check_license('sync_genesis', WPSiteSync_Genesis::PLUGIN_KEY, WPSiteSync_Genesis::PLUGIN_NAME))
+		$license = WPSiteSync_Genesis::get_instance()->get_license();
+		if (!$license)
 			return $found;
 
 		if ('pushgenesis' === $operation) {
