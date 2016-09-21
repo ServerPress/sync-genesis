@@ -6,7 +6,7 @@
  * @author WPSiteSync
  */
 
-class SyncGenesisAjaxRequest
+class SyncGenesisAjaxRequest extends SyncInput
 {
 	private static $_instance = NULL;
 
@@ -33,16 +33,12 @@ class SyncGenesisAjaxRequest
 	 */
 	public function push_genesis($resp)
 	{
-		// TODO: make this class extend SyncInput and you can remove this instantiation
-		$input = new SyncInput();
-
-		$selected_genesis_settings = $input->post('selected_genesis_settings', 0);
+		$selected_genesis_settings = $this->post('selected_genesis_settings', 0);
 
 		if (0 === $selected_genesis_settings) {
 			// No Settings selected. Return error message
 			WPSiteSync_Genesis::get_instance()->load_class('genesisapirequest');
 			$resp->error_code(SyncGenesisApiRequest::ERROR_NO_GENESIS_SETTINGS_SELECTED);
-			$resp->success(FALSE);	// TODO: not needed, $resp->error_code() also sets success(FALSE)
 			return TRUE;        // return, signaling that we've handled the request
 		}
 
@@ -74,16 +70,12 @@ SyncDebug::log(__METHOD__ . '():' . __LINE__ . ' - returned from api() call; cop
 	 */
 	public function pull_genesis($resp)
 	{
-		// TODO: extend SyncInput and this is not necessary
-		$input = new SyncInput();
-
-		$selected_genesis_settings = $input->post('selected_genesis_settings', 0);
+		$selected_genesis_settings = $this->post('selected_genesis_settings', 0);
 
 		if (0 === $selected_genesis_settings) {
 			// No settings selected. Return error message
 			WPSiteSync_Genesis::get_instance()->load_class('genesisapirequest');
 			$resp->error_code(SyncGenesisApiRequest::ERROR_NO_GENESIS_SETTINGS_SELECTED);
-			$resp->success(FALSE);	// TODO: not needed, $resp->error_code() sets success(FALSE)
 			return TRUE;        // return, signaling that we've handled the request
 		}
 
