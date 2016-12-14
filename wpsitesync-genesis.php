@@ -5,7 +5,7 @@ Plugin URI: http://wpsitesync.com
 Description: Extension for WPSiteSync for Content that provides the ability to Sync Genesis theme settings.
 Author: WPSiteSync
 Author URI: http://wpsitesync.com
-Version: 1.0
+Version: 1.1
 Text Domain: wpsitesync-genesis
 
 The PHP code portions are distributed under the GPL license. If not otherwise stated, all
@@ -25,8 +25,6 @@ if (!class_exists('WPSiteSync_Genesis')) {
 		const PLUGIN_NAME = 'WPSiteSync for Genesis Settings';
 		const PLUGIN_VERSION = '1.0';
 		const PLUGIN_KEY = '4151f50e546c7b0a53994d4c27f4cf31';
-
-		private $_license = NULL;
 
 		private function __construct()
 		{
@@ -55,10 +53,9 @@ if (!class_exists('WPSiteSync_Genesis')) {
 		 */
 		public function init()
 		{
-			$this->_license = new SyncLicensing();
 			add_filter('spectrom_sync_active_extensions', array(&$this, 'filter_active_extensions'), 10, 2);
 
-			if (!$this->_license->check_license('sync_genesis', self::PLUGIN_KEY, self::PLUGIN_NAME))
+			if (!WPSiteSyncContent::get_instance()->get_license()->check_license('sync_genesis', self::PLUGIN_KEY, self::PLUGIN_NAME))
 				return;
 
 			if (is_admin() && SyncOptions::is_auth()) {
@@ -111,16 +108,6 @@ if (!class_exists('WPSiteSync_Genesis')) {
 		}
 
 		/**
-		 * Return license
-		 *
-		 * @return null
-		 */
-		public function get_license()
-		{
-			return $this->_license;
-		}
-
-		/**
 		 * Adds the WPSiteSync Menu add-on to the list of known WPSiteSync extensions
 		 *
 		 * @param array $extensions The list of extensions
@@ -129,7 +116,7 @@ if (!class_exists('WPSiteSync_Genesis')) {
 		 */
 		public function filter_active_extensions($extensions, $set = FALSE)
 		{
-			if ($set || $this->_license->check_license('sync_genesis', self::PLUGIN_KEY, self::PLUGIN_NAME))
+			if ($set || WPSiteSyncContent::get_instance()->get_license()->check_license('sync_genesis', self::PLUGIN_KEY, self::PLUGIN_NAME))
 				$extensions['sync_genesis'] = array(
 					'name' => self::PLUGIN_NAME,
 					'version' => self::PLUGIN_VERSION,

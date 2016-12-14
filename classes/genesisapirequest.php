@@ -63,11 +63,11 @@ class SyncGenesisApiRequest extends SyncInput
 	{
 SyncDebug::log(__METHOD__ . '() action=' . $action);
 
-		$license = WPSiteSync_Genesis::get_instance()->get_license();
+		$license = WPSiteSyncContent::get_instance()->get_license();
 		if (!$license)
 			return $args;
 
-		if ('pushgenesis' === $action) {
+		if ('pushgenesis' === $action && $license->check_license('sync_genesis', WPSiteSync_Genesis::PLUGIN_KEY, WPSiteSync_Genesis::PLUGIN_NAME)) {
 SyncDebug::log(__METHOD__ . '() args=' . var_export($args, TRUE));
 
 			$push_data = array();
@@ -131,7 +131,7 @@ SyncDebug::log(__METHOD__ . '() push_data=' . var_export($push_data, TRUE));
 	{
 SyncDebug::log(__METHOD__ . "() handling '{$action}' action");
 
-		$license = WPSiteSync_Genesis::get_instance()->get_license();
+		$license = WPSiteSyncContent::get_instance()->get_license();
 		if (!$license)
 			return $return;
 
