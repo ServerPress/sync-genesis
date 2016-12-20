@@ -5,7 +5,7 @@ Plugin URI: http://wpsitesync.com
 Description: Extension for WPSiteSync for Content that provides the ability to Sync Genesis theme settings.
 Author: WPSiteSync
 Author URI: http://wpsitesync.com
-Version: 1.1
+Version: 1.0
 Text Domain: wpsitesync-genesis
 
 The PHP code portions are distributed under the GPL license. If not otherwise stated, all
