@@ -1,10 +1,12 @@
 /*
- * @copyright Copyright (C) 2015 SpectrOMtech.com. - All Rights Reserved.
+ * @copyright Copyright (C) 2015-2017 SpectrOMtech.com. - All Rights Reserved.
  * @license GNU General Public License, version 2 (http://www.gnu.org/licenses/gpl-2.0.html)
  * @author SpectrOMtech.com <hello@SpectrOMtech.com>
- * @url https://www.SpectrOMtech.com/products/
- * The PHP code portions are distributed under the GPL license. If not otherwise stated, all images, manuals, cascading style sheets, and included JavaScript *are NOT GPL, and are released under the SpectrOMtech Proprietary Use License v1.0
- * More info at https://SpectrOMtech.com/products/
+ * @url https://wpsitesync.com/license
+ * The PHP code portions are distributed under the GPL license. If not otherwise stated, all images,
+ * manuals, cascading style sheets, and included JavaScript *are NOT GPL*, and are released under the
+ * SpectrOMtech Proprietary Use License v1.0
+ * More info at https://wpsitesync.com
  */
 
 function WPSiteSyncContent_Genesis()
@@ -15,16 +17,58 @@ function WPSiteSyncContent_Genesis()
 /**
  * Init
  */
-WPSiteSyncContent_Genesis.prototype.init = function ()
+WPSiteSyncContent_Genesis.prototype.init = function()
 {
     this.inited = true;
-    this.show();
+	var page = this.get_param('page');
+	switch (page) {
+	case 'genesis':
+		this.show_theme_settings_msg();
+		break;
+	case 'seo-settings':
+		this.show_seo_settings_msg();
+		break;
+	case 'genesis-import-export':
+		this.show();
+		break;
+	}
+};
+
+/**
+ * Get the value of a parameter from the URL
+ * @param {string} name Name of the parameter to retrieve
+ * @returns {String} The value of the parameter (can be empty) or null if not found
+ */
+WPSiteSyncContent_Genesis.prototype.get_param = function(name)
+{
+	var url = window.location.href;
+	name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results)
+		return null;
+    if (!results[2])
+		return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+};
+
+
+WPSiteSyncContent_Genesis.prototype.show_theme_settings_msg = function()
+{
+	this.hide_msgs();
+	jQuery('div.wrap.genesis-metaboxes div.bottom-buttons').after(jQuery('#spectrom-sync-settings-msg').html());
+};
+
+WPSiteSyncContent_Genesis.prototype.show_seo_settings_msg = function()
+{
+	this.hide_msgs();
+	jQuery('div.wrap.genesis-metaboxes div.bottom-buttons').after(jQuery('#spectrom-sync-seo-settings-msg').html());
 };
 
 /**
  * Shows the Menu UI area
  */
-WPSiteSyncContent_Genesis.prototype.show = function ()
+WPSiteSyncContent_Genesis.prototype.show = function()
 {
     this.hide_msgs();
 
@@ -35,7 +79,7 @@ WPSiteSyncContent_Genesis.prototype.show = function ()
  * Hides all messages within the Genesis UI area
  * @returns {undefined}
  */
-WPSiteSyncContent_Genesis.prototype.hide_msgs = function ()
+WPSiteSyncContent_Genesis.prototype.hide_msgs = function()
 {
     jQuery('.sync-genesis-msgs').hide();
     jQuery('.sync-genesis-loading-indicator').hide();
@@ -48,7 +92,7 @@ WPSiteSyncContent_Genesis.prototype.hide_msgs = function ()
  * @param {string} msg The HTML contents of the message to be shown.
  * @param {string} type The type of message to display.
  */
-WPSiteSyncContent_Genesis.prototype.set_message = function (type, msg)
+WPSiteSyncContent_Genesis.prototype.set_message = function(type, msg)
 {
     if (!this.inited)
         return;
@@ -78,7 +122,7 @@ WPSiteSyncContent_Genesis.prototype.set_message = function (type, msg)
  * Push Genesis settings from target site
  * @param {array} settings The checked export values.
  */
-WPSiteSyncContent_Genesis.prototype.push_genesis = function (settings)
+WPSiteSyncContent_Genesis.prototype.push_genesis = function(settings)
 {
 //console.log('PUSH' + settings);
 
@@ -121,7 +165,7 @@ WPSiteSyncContent_Genesis.prototype.push_genesis = function (settings)
  * Pulls Genesis settings from target site
  * @param {array} settings The checked export values.
  */
-WPSiteSyncContent_Genesis.prototype.pull_genesis = function (settings)
+WPSiteSyncContent_Genesis.prototype.pull_genesis = function(settings)
 {
     // Do nothing when in a disabled state
     if (this.disable || !this.inited)

@@ -28,7 +28,7 @@ if (!class_exists('WPSiteSync_Genesis')) {
 
 		private function __construct()
 		{
-			add_action('spectrom_sync_init', array(&$this, 'init'));
+			add_action('spectrom_sync_init', array($this, 'init'));
 		}
 
 		/**
@@ -53,7 +53,7 @@ if (!class_exists('WPSiteSync_Genesis')) {
 		 */
 		public function init()
 		{
-			add_filter('spectrom_sync_active_extensions', array(&$this, 'filter_active_extensions'), 10, 2);
+			add_filter('spectrom_sync_active_extensions', array($this, 'filter_active_extensions'), 10, 2);
 
 			if (!WPSiteSyncContent::get_instance()->get_license()->check_license('sync_genesis', self::PLUGIN_KEY, self::PLUGIN_NAME))
 				return;

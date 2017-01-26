@@ -12,9 +12,9 @@ class SyncGenesisAdmin
 
 	private function __construct()
 	{
-		add_action('admin_enqueue_scripts', array(&$this, 'admin_enqueue_scripts'));
-		add_action('admin_print_scripts-genesis_page_genesis-import-export', array(&$this, 'print_hidden_div'));
-		add_action('spectrom_sync_ajax_operation', array(&$this, 'check_ajax_query'), 10, 3);
+		add_action('admin_enqueue_scripts', array($this, 'admin_enqueue_scripts'));
+		add_action('admin_print_scripts', array($this, 'print_hidden_div'));
+		add_action('spectrom_sync_ajax_operation', array($this, 'check_ajax_query'), 10, 3);
 	}
 
 	/**
@@ -43,7 +43,7 @@ class SyncGenesisAdmin
 		wp_register_script('sync-genesis', WPSiteSync_Genesis::get_asset('js/sync-genesis.js'), array('sync'), WPSiteSync_Genesis::PLUGIN_VERSION, TRUE);
 		wp_register_style('sync-genesis', WPSiteSync_Genesis::get_asset('css/sync-genesis.css'), array('sync-admin'), WPSiteSync_Genesis::PLUGIN_VERSION);
 
-		if ('genesis_page_genesis-import-export' === $hook_suffix) {
+		if (in_array($hook_suffix, array('toplevel_page_genesis', 'genesis_page_seo-settings', 'genesis_page_genesis-import-export'))) {
 			wp_enqueue_script('sync-genesis');
 			wp_enqueue_style('sync-genesis');
 		}
@@ -57,7 +57,9 @@ class SyncGenesisAdmin
 	 */
 	public function print_hidden_div()
 	{
-		?>
+		$page = isset($_GET['page']) ? $_GET['page'] : '';
+		if (in_array($page, array('genesis', 'seo-settings', 'genesis-import-export'))) {
+?>
 		<div id="sync-genesis-ui" style="display:none">
 			<div id="spectrom_sync" class="sync-genesis-contents">
 				<button class="sync-genesis-push button button-primary sync-button" type="button" title="<?php esc_html_e('Push Genesis Settings to the Target site', 'wpsitesync-genesis'); ?>">
@@ -87,7 +89,16 @@ class SyncGenesisAdmin
 				</div>
 			</div>
 		</div>
-		<?php
+		<div style="display:none">
+			<div id="spectrom-sync-settings-msg">
+				<br/>To use WPSiteSync and sync Theme Settings, please visit <a href="<?php echo esc_url(admin_url('admin.php?page=genesis-import-export')); ?>">Genesis -&gt; Import/Export</a>.
+			</div>
+			<div id="spectrom-sync-seo-settings-msg">
+				<br/>To use WPSiteSync and sync SEO Settings, please visit <a href="<?php echo esc_url(admin_url('admin.php?page=genesis-import-export')); ?>">Genesis -&gt; Import/Export</a>.
+			</div>
+		</div>
+<?php
+		}
 	}
 
 	/**
