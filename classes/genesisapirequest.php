@@ -23,6 +23,7 @@ class SyncGenesisApiRequest extends SyncInput
 	 */
 	public function filter_error_codes($message, $code)
 	{
+SyncDebug::log(__METHOD__.'():' . __LINE__ . ' error code=' . $code);
 		switch ($code) {
 		case self::ERROR_GENESIS_SETTINGS_NOT_FOUND:
 			$message = __('No Genesis settings were found', 'wpsitesync-genesis');
@@ -71,45 +72,11 @@ SyncDebug::log(__METHOD__ . '() action=' . $action);
 SyncDebug::log(__METHOD__ . '() args=' . var_export($args, TRUE));
 
 			$push_data = array();
-			$settings = array();
 			$selected = $args['selected_genesis_settings'];
-
-			$options = array(
-				'theme' => array(
-					'label' => __('Theme Settings', 'genesis'),
-					'settings-field' => GENESIS_SETTINGS_FIELD,
-				),
-				'seo' => array(
-					'label' => __('SEO Settings', 'genesis'),
-					'settings-field' => GENESIS_SEO_SETTINGS_FIELD,
-				)
-			);
-
-			$options = apply_filters('genesis_export_options', $options);
 
 			$push_data['site_key'] = $args['auth']['site_key'];
 			$push_data['pull'] = FALSE;
-
-			// Get settings
-			foreach ($selected as $setting) {
-				$setting = str_replace('genesis-export[', '', rtrim($setting, ']'));
-SyncDebug::log(__METHOD__ . '() setting=' . var_export($setting, TRUE));
-				// Grab settings field name (key)
-				$setting_key = $options[$setting]['settings-field'];
-
-				// Grab all of the settings from the database under that key
-				$setting_value = get_option($setting_key);
-
-				if (FALSE !== $setting_value) {
-					$settings[] = array(
-						'option_key' => $setting_key,
-						'option_value' => $setting_value,
-					);
-				}
-			}
-
-			$push_data['genesis-settings'] = $settings;
-
+			$push_data['genesis-settings'] = $this->_get_genesis_settings_data($selected);
 SyncDebug::log(__METHOD__ . '() push_data=' . var_export($push_data, TRUE));
 
 			$args['push_data'] = $push_data;
@@ -171,36 +138,7 @@ SyncDebug::log(__METHOD__ . '() found push_data information: ' . var_export($thi
 		} else if ('pullgenesis' === $action) {
 			$selected = $this->post('selected_genesis_settings', array());
 			$pull_data = array();
-			$settings = array();
-
-			$options = array(
-				'theme' => array(
-					'label' => __('Theme Settings', 'genesis'),
-					'settings-field' => GENESIS_SETTINGS_FIELD,
-				),
-				'seo' => array(
-					'label' => __('SEO Settings', 'genesis'),
-					'settings-field' => GENESIS_SEO_SETTINGS_FIELD,
-				)
-			);
-			$options = apply_filters('genesis_export_options', $options);
-
-			// Get settings
-			foreach ($selected as $setting) {
-				$setting = str_replace('genesis-export[', '', rtrim($setting, ']'));
-				// Grab settings field name (key)
-				$setting_key = $options[$setting]['settings-field'];
-
-				// Grab all of the settings from the database under that key
-				$setting_value = get_option($setting_key);
-
-				$settings[] = array(
-					'option_key' => $setting_key,
-					'option_value' => $setting_value,
-				);
-			}
-
-			$pull_data['genesis-settings'] = $settings;
+			$pull_data['genesis-settings'] = $this->_get_genesis_settings_data($selected);
 
 			$response->set('pull_data', $pull_data); // add all the post information to the ApiResponse object
 			$response->set('site_key', SyncOptions::get('site_key'));
@@ -254,7 +192,7 @@ SyncDebug::log(__METHOD__ . '() no response->response element');
 
 SyncDebug::log(__METHOD__ . '() api response body=' . var_export($api_response, TRUE));
 
-			if (NULL !== $api_response) {
+			if (NULL !== $api_response && isset($api_response->data->pull_data)) {
 				$save_post = $_POST;
 
 				// convert the pull data into an array
@@ -288,8 +226,53 @@ SyncDebug::log(__METHOD__ . '():' . __LINE__ . ' - response=' . var_export($resp
 				if (0 === $response->get_error_code()) {
 					$response->success(TRUE);
 				}
+			} else {
+SyncDebug::log(__METHOD__.'():' . __LINE__ . ' no data found in Pull response ' . var_export($api_response, TRUE));
 			}
 		}
+	}
+
+	/**
+	 * Generates the settings list from the list of known Genesis option values
+	 * @return array An array settings keys and values based on selected Import/Export options
+	 */
+	private function _get_genesis_settings_data($selected)
+	{
+		// build the known options list
+		$options = array(
+			'theme' => array(
+				'label' => __('Theme Settings', 'wpsitesync-genesis'),
+				'settings-field' => defined('GENESIS_SETTINGS_FIELD') ? GENESIS_SETTINGS_FIELD : apply_filters('genesis_settings_field', 'genesis-settings'),
+			),
+			'seo' => array(
+				'label' => __('SEO Settings', 'wpsitesync-genesis'),
+				'settings-field' => defined('GENESIS_SEO_SETTINGS_FIELD') ? GENESIS_SEO_SETTINGS_FIELD : apply_filters('genesis_seo_settings_field', 'genesis-seo-settings'),
+			)
+		);
+
+		$options = apply_filters('genesis_export_options', $options);
+
+		$settings = array();
+		foreach ($selected as $setting) {
+			$setting = str_replace('genesis-export[', '', rtrim($setting, ']'));
+SyncDebug::log(__METHOD__ . '() setting=' . var_export($setting, TRUE));
+			// grab settings field name (key)
+			if (isset($options[$setting])) {		// verify args are known
+				$setting_key = $options[$setting]['settings-field'];
+
+				// Grab all of the settings from the database under that key
+				$setting_value = get_option($setting_key, FALSE);
+
+				if (FALSE !== $setting_value) {
+					$settings[] = array(
+						'option_key' => $setting_key,
+						'option_value' => $setting_value,
+					);
+				}
+			}
+		}
+
+		return $settings;
 	}
 }
 
