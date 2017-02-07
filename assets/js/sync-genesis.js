@@ -15,7 +15,7 @@ function WPSiteSyncContent_Genesis()
 }
 
 /**
- * Init
+ * Initialize the Sync Genesis UI behaviors
  */
 WPSiteSyncContent_Genesis.prototype.init = function()
 {
@@ -29,11 +29,11 @@ WPSiteSyncContent_Genesis.prototype.init = function()
 		this.show_seo_settings_msg();
 		break;
 	case 'genesis-import-export':
-		this.show();
+		this.show_ui();
 		break;
 	}
 
-/*	jQuery('.xsync-genesis-contents').on('click', '.sync-genesis-push, .sync-genesis-pull', function()
+/*	jQuery('.sync-genesis-contents').on('click', '.sync-genesis-push, .sync-genesis-pull', function()
 	{
 		var settings = [];
 		jQuery('form input:checked').each(function ()
@@ -56,6 +56,9 @@ WPSiteSyncContent_Genesis.prototype.init = function()
 	}); */
 };
 
+/**
+ * Callback for when the Push to Target button is clicked
+ */
 WPSiteSyncContent_Genesis.prototype.push_handler = function()
 {
 	var settings = this.get_selected_settings();
@@ -64,6 +67,9 @@ WPSiteSyncContent_Genesis.prototype.push_handler = function()
 	this.push_genesis(settings);
 };
 
+/**
+ * Callback for when the Pull from Target button is clicked
+ */
 WPSiteSyncContent_Genesis.prototype.pull_handler = function()
 {
 	var settings = this.get_selected_settings();
@@ -71,12 +77,20 @@ WPSiteSyncContent_Genesis.prototype.pull_handler = function()
 		return;
 	this.pull_genesis(settings);
 };
+
+/**
+ * Callback for the Pull from Target button is clicked and the Pull add-on is not active
+ */
 WPSiteSyncContent_Genesis.prototype.pull_notice = function()
 {
 	this.hide_msgs();
 	this.set_message('pull-notice');
 };
 
+/**
+ * Helper method to retrieve the settings (checkboxes) and display a notice message if none are selected
+ * @returns {Array|Boolean} false when nothing is selected; otherwise an array of the selected settings
+ */
 WPSiteSyncContent_Genesis.prototype.get_selected_settings = function()
 {
 	this.hide_msgs;
@@ -95,6 +109,7 @@ WPSiteSyncContent_Genesis.prototype.get_selected_settings = function()
 
 	return settings;
 };
+
 /**
  * Get the value of a parameter from the URL
  * @param {string} name Name of the parameter to retrieve
@@ -127,12 +142,13 @@ WPSiteSyncContent_Genesis.prototype.show_seo_settings_msg = function()
 };
 
 /**
- * Shows the Menu UI area
+ * Shows the Menu UI area within the Genesis Import/Export page
  */
-WPSiteSyncContent_Genesis.prototype.show = function()
+WPSiteSyncContent_Genesis.prototype.show_ui = function()
 {
 	this.hide_msgs();
 
+	// copy the UI DOM elements into place within the Genesis table
 	jQuery('table.form-table tbody tr:last').after(
 		'<tr><th scope="row">' + jQuery('#sync-genesis-ui-header').html() + '</th>' +
 		'<td>' + jQuery('#sync-genesis-ui').html() + '</td>');
@@ -196,8 +212,8 @@ WPSiteSyncContent_Genesis.prototype.push_genesis = function(settings)
 //console.log('PUSH' + settings);
 
 	// Do nothing when in a disabled state
-	if (this.disable || !this.inited)
-		return;
+//	if (this.disable || !this.inited)
+//		return;
 
 	var data = {
 		action: 'spectrom_sync',
@@ -217,8 +233,8 @@ WPSiteSyncContent_Genesis.prototype.push_genesis = function(settings)
 		success: function (response)
 		{
 			wpsitesynccontent.genesis.hide_msgs();
-	//console.log('in ajax success callback - response');
-			console.log(response);
+//console.log('in ajax success callback - response');
+//			console.log(response);
 			if (response.success) {
 				wpsitesynccontent.genesis.set_message('success');
 			} else if (0 !== response.error_code) {
@@ -237,8 +253,8 @@ WPSiteSyncContent_Genesis.prototype.push_genesis = function(settings)
 WPSiteSyncContent_Genesis.prototype.pull_genesis = function(settings)
 {
 	// Do nothing when in a disabled state
-	if (this.disable || !this.inited)
-		return;
+//	if (this.disable || !this.inited)
+//		return;
 
 	var data = {
 		action: 'spectrom_sync',
