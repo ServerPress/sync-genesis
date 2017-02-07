@@ -32,8 +32,69 @@ WPSiteSyncContent_Genesis.prototype.init = function()
 		this.show();
 		break;
 	}
+
+/*	jQuery('.xsync-genesis-contents').on('click', '.sync-genesis-push, .sync-genesis-pull', function()
+	{
+		var settings = [];
+		jQuery('form input:checked').each(function ()
+		{
+			settings.push(jQuery(this).attr('name'));
+		});
+
+		wpsitesynccontent.genesis.hide_msgs();
+
+		if (0 === settings.length) {
+			wpsitesynccontent.genesis.set_message('select');
+			return;
+		}
+
+		if (jQuery(this).hasClass('sync-genesis-pull')) {
+			wpsitesynccontent.genesis.pull_genesis(settings);
+		} else if (jQuery(this).hasClass('sync-genesis-push')) {
+			wpsitesynccontent.genesis.push_genesis(settings);
+		}
+	}); */
 };
 
+WPSiteSyncContent_Genesis.prototype.push_handler = function()
+{
+	var settings = this.get_selected_settings();
+	if (false === settings)
+		return;
+	this.push_genesis(settings);
+};
+
+WPSiteSyncContent_Genesis.prototype.pull_handler = function()
+{
+	var settings = this.get_selected_settings();
+	if (false === settings)
+		return;
+	this.pull_genesis(settings);
+};
+WPSiteSyncContent_Genesis.prototype.pull_notice = function()
+{
+	this.hide_msgs();
+	this.set_message('pull-notice');
+};
+
+WPSiteSyncContent_Genesis.prototype.get_selected_settings = function()
+{
+	this.hide_msgs;
+
+	var settings = [];
+	jQuery('form input:checked').each(function ()
+	{
+		settings.push(jQuery(this).attr('name'));
+	});
+
+	// check to see that some settings are selected
+	if (0 === settings.length) {
+		this.set_message('select');
+		return false;
+	}
+
+	return settings;
+};
 /**
  * Get the value of a parameter from the URL
  * @param {string} name Name of the parameter to retrieve
@@ -72,7 +133,9 @@ WPSiteSyncContent_Genesis.prototype.show = function()
 {
 	this.hide_msgs();
 
-	jQuery('.genesis_page_genesis-import-export #download').after(jQuery('#sync-genesis-ui').html());
+	jQuery('table.form-table tbody tr:last').after(
+		'<tr><th scope="row">' + jQuery('#sync-genesis-ui-header').html() + '</th>' +
+		'<td>' + jQuery('#sync-genesis-ui').html() + '</td>');
 };
 
 /**
@@ -81,10 +144,12 @@ WPSiteSyncContent_Genesis.prototype.show = function()
  */
 WPSiteSyncContent_Genesis.prototype.hide_msgs = function()
 {
+	// TODO: rework to have a single message <div> that all messages are written into
 	jQuery('.sync-genesis-msgs').hide();
 	jQuery('.sync-genesis-loading-indicator').hide();
 	jQuery('.sync-genesis-failure-msg').hide();
 	jQuery('.sync-genesis-success-msg').hide();
+	jQuery('.sync-genesis-pull-notice').hide();
 };
 
 /**
@@ -97,6 +162,8 @@ WPSiteSyncContent_Genesis.prototype.set_message = function(type, msg)
 	if (!this.inited)
 		return;
 
+	// TODO: simplify this
+	this.hide_msgs();
 	jQuery('.sync-genesis-msgs').show();
 	if ('loading' === type) {
 		jQuery('.sync-genesis-loading-indicator').show();
@@ -110,6 +177,8 @@ WPSiteSyncContent_Genesis.prototype.set_message = function(type, msg)
 		jQuery('.sync-genesis-failure-api').show();
 		jQuery('.sync-genesis-failure-select').hide();
 		jQuery('.sync-genesis-failure-msg').show();
+	} else if ('pull-notice' === type) {
+		jQuery('.sync-genesis-pull-notice').show();
 	} else {
 		jQuery('.sync-genesis-failure-detail').html(msg);
 		jQuery('.sync-genesis-failure-api').hide();
@@ -209,26 +278,4 @@ wpsitesynccontent.genesis = new WPSiteSyncContent_Genesis();
 jQuery(document).ready(function ()
 {
 	wpsitesynccontent.genesis.init();
-
-	jQuery('.sync-genesis-contents').on('click', '.sync-genesis-push, .sync-genesis-pull', function ()
-	{
-		var settings = [];
-		jQuery('form input:checked').each(function ()
-		{
-			settings.push(jQuery(this).attr('name'));
-		});
-
-		wpsitesynccontent.genesis.hide_msgs();
-
-		if (0 === settings.length) {
-			wpsitesynccontent.genesis.set_message('select');
-			return;
-		}
-
-		if (jQuery(this).hasClass('sync-genesis-pull')) {
-			wpsitesynccontent.genesis.pull_genesis(settings);
-		} else if (jQuery(this).hasClass('sync-genesis-push')) {
-			wpsitesynccontent.genesis.push_genesis(settings);
-		}
-	});
 });

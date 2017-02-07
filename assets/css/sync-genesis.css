@@ -1,7 +1,13 @@
 #spectrom_sync.sync-genesis-contents {
 	border: medium none;
-	margin: 1rem 0;
+	margin: 0;
 	width: 26rem;
+	width: auto;
+}
+
+#spectrom_sync.sync-genesis-contents .sync-button {
+	width: 13rem;
+	margin-top: .5rem;
 }
 
 .sync-genesis-msgs {

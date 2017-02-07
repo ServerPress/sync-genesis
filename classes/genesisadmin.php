@@ -60,7 +60,56 @@ class SyncGenesisAdmin
 		$page = isset($_GET['page']) ? $_GET['page'] : '';
 		if (in_array($page, array('genesis', 'seo-settings', 'genesis-import-export'))) {
 ?>
-		<div id="sync-genesis-ui" style="display:none">
+		<div  style="display:none">
+			<div id="sync-genesis-ui-header">
+				<img src="<?php echo esc_url(WPSiteSyncContent::get_asset('imgs/wpsitesync-logo-blue.png')); ?>"  width="125" height="45" />
+			</div>
+			<div id="sync-genesis-ui">
+				<div id="spectrom_sync" class="sync-genesis-contents">
+<?php				if (SyncOptions::is_auth()) { ?>
+						<p><em>WPSiteSync&#8482; for Genesis Settings</em> provides a convenient way to sync your Genesis Settings between two WordPress sites.</p>
+						<p>Target site: <b><?php echo esc_url(SyncOptions::get('target')); ?>:</b></p>
+						<button class="sync-genesis-push button button-primary sync-button" type="button" onclick="wpsitesynccontent.genesis.push_handler(); return false;"
+							title="<?php esc_html_e('Push Genesis Settings to the Target site', 'wpsitesync-genesis'); ?>">
+							<span class="sync-button-icon dashicons dashicons-migrate"></span>
+							<?php esc_html_e('Push Settings to Target', 'wpsitesync-genesis'); ?>
+						</button>
+<?php
+						$pull_active = FALSE;
+						if (class_exists('WPSiteSync_Pull') && WPSiteSyncContent::get_instance()->get_license()->check_license('sync_pull', WPSiteSync_Pull::PLUGIN_KEY, WPSiteSync_Pull::PLUGIN_NAME))
+							$pull_active = TRUE;
+?>
+						<button class="button <?php if ($pull_active) echo 'button-primary sync-genesis-pull'; ?> sync-button" type="button"
+							onclick="wpsitesynccontent.genesis.<?php if ($pull_active) echo 'pull_handler'; else echo 'pull_notice'; ?>(); return false;"
+							title="<?php esc_html_e('Pull Genesis Settings from the Target site', 'wpsitesync-genesis'); ?>">
+							<span class="sync-button-icon sync-button-icon-rotate dashicons dashicons-migrate"></span>
+							<?php esc_html_e('Pull Settings from Target', 'wpsitesync-genesis'); ?>
+						</button>
+
+						<div class="sync-genesis-msgs" style="display:none">
+							<div class="sync-genesis-loading-indicator">
+								<img src="<?php echo esc_url(WPSiteSyncContent::get_asset('imgs/ajax-loader.gif')); ?>" />&nbsp;
+								<?php esc_html_e('Synchronizing Genesis Settings...', 'wpsitesync-genesis'); ?>
+							</div>
+							<div class="sync-genesis-failure-msg">
+								<?php esc_html_e('Failed to Sync Genesis Settings.', 'wpsitesync-genesis'); ?>
+								<span class="sync-genesis-failure-detail"></span>
+								<span class="sync-genesis-failure-api"><?php esc_html_e('API Failure', 'wpsitesync-genesis'); ?></span>
+								<span class="sync-genesis-failure-select"><?php esc_html_e('Please select settings to sync.', 'wpsitesync-genesis'); ?></span>
+							</div>
+							<div class="sync-genesis-success-msg">
+								<?php esc_html_e('Successfully Synced Genesis Settings.', 'wpsitesync-genesis'); ?>
+							</div>
+							<div class="sync-genesis-pull-notice">
+								<?php esc_html_e('Please install the WPSiteSync for Pull plugin to use the Pull features.', 'wpsitesync-genesis'); ?>
+							</div>
+						</div>
+<?php				} else { // is_auth() ?>
+						<p>WPSiteSync&#8482; for Content is not configured with a valid Target. Please go to the <a href="<?php echo esc_url(admin_url('options-general.php?page=sync')); ?>">Settings Page</a> to configure.</p>
+<?php				} ?>
+				</div>
+			</div>
+<?php /*
 			<div id="spectrom_sync" class="sync-genesis-contents">
 				<button class="sync-genesis-push button button-primary sync-button" type="button" title="<?php esc_html_e('Push Genesis Settings to the Target site', 'wpsitesync-genesis'); ?>">
 					<span class="sync-button-icon dashicons dashicons-migrate"></span>
@@ -88,6 +137,7 @@ class SyncGenesisAdmin
 					</div>
 				</div>
 			</div>
+ */ ?>
 		</div>
 		<div style="display:none">
 			<div id="spectrom-sync-settings-msg">
