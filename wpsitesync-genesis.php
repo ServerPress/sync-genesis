@@ -12,7 +12,7 @@ The PHP code portions are distributed under the GPL license. If not otherwise st
 images, manuals, cascading stylesheets and included JavaScript are NOT GPL.
 */
 
-if (!class_exists('WPSiteSync_Genesis')) {
+if (!class_exists('WPSiteSync_Genesis', FALSE)) {
 	/*
 	 * @package WPSiteSync_Genesis
 	 * @author WPSiteSync
