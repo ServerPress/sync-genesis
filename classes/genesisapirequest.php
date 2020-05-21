@@ -217,7 +217,8 @@ SyncDebug::log(__METHOD__ . '():' . __LINE__ . ' - pull data=' . var_export($pul
 				);
 
 SyncDebug::log(__METHOD__ . '() creating controller with: ' . var_export($args, TRUE));
-				$this->_push_controller = new SyncApiController($args);
+				$this->_push_controller = SyncApiController::get_instance($args);
+				$this->_push_controller->dispatch();
 SyncDebug::log(__METHOD__ . '():' . __LINE__ . ' - returned from controller');
 SyncDebug::log(__METHOD__ . '():' . __LINE__ . ' - response=' . var_export($response, TRUE));
 

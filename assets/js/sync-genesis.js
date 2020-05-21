@@ -117,6 +117,7 @@ WPSiteSyncContent_Genesis.prototype.get_selected_settings = function()
  */
 WPSiteSyncContent_Genesis.prototype.get_param = function(name)
 {
+	// TODO: replace with get_param() from main sync class
 	var url = window.location.href;
 	name = name.replace(/[\[\]]/g, "\\$&");
 	var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),

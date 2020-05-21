@@ -25,6 +25,7 @@ if (!class_exists('WPSiteSync_Genesis', FALSE)) {
 		const PLUGIN_NAME = 'WPSiteSync for Genesis Settings';
 		const PLUGIN_VERSION = '1.0';
 		const PLUGIN_KEY = '4151f50e546c7b0a53994d4c27f4cf31';
+		const REQUIRED_VERSION = '1.5.5';		 // minimum version of WPSiteSync required for this add-on to initialize
 
 		private function __construct()
 		{
@@ -63,6 +64,7 @@ if (!class_exists('WPSiteSync_Genesis', FALSE)) {
 				SyncGenesisAdmin::get_instance();
 			}
 
+			// TODO: move into 'spectrom_sync_api_init' callback
 			$api = $this->load_class('genesisapirequest', TRUE);
 
 			add_filter('spectrom_sync_api_request_action', array($api, 'api_request'), 20, 3); // called by SyncApiRequest
