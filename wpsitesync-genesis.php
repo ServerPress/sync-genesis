@@ -5,7 +5,7 @@ Plugin URI: http://wpsitesync.com
 Description: Extension for WPSiteSync for Content that provides the ability to Sync Genesis theme settings.
 Author: WPSiteSync
 Author URI: http://wpsitesync.com
-Version: 1.0
+Version: 1.1
 Text Domain: wpsitesync-genesis
 
 The PHP code portions are distributed under the GPL license. If not otherwise stated, all
@@ -23,9 +23,9 @@ if (!class_exists('WPSiteSync_Genesis', FALSE)) {
 		private static $_instance = NULL;
 
 		const PLUGIN_NAME = 'WPSiteSync for Genesis Settings';
-		const PLUGIN_VERSION = '1.0';
+		const PLUGIN_VERSION = '1.1';
 		const PLUGIN_KEY = '4151f50e546c7b0a53994d4c27f4cf31';
-		const REQUIRED_VERSION = '1.5.5';		 // minimum version of WPSiteSync required for this add-on to initialize
+		const REQUIRED_VERSION = '1.6';		 // minimum version of WPSiteSync required for this add-on to initialize
 
 		private function __construct()
 		{
@@ -35,11 +35,8 @@ if (!class_exists('WPSiteSync_Genesis', FALSE)) {
 		}
 
 		/**
-		 * Retrieve singleton class instance
-		 *
-		 * @since 1.0.0
-		 * @static
-		 * @return null|WPSiteSync_Genesis
+		 * Retrieve singleton instance of the class
+		 * @return WPSiteSync_Genesis
 		 */
 		public static function get_instance()
 		{
@@ -50,9 +47,6 @@ if (!class_exists('WPSiteSync_Genesis', FALSE)) {
 
 		/**
 		 * Callback for Sync initialization action
-		 *
-		 * @since 1.0.0
-		 * @return void
 		 */
 		public function init()
 		{
@@ -124,8 +118,6 @@ if (!class_exists('WPSiteSync_Genesis', FALSE)) {
 
 		/**
 		 * Loads a specified class file name and optionally creates an instance of it
-		 *
-		 * @since 1.0.0
 		 * @param $name Name of class to load
 		 * @param bool $create TRUE to create an instance of the loaded class
 		 * @return bool|object Created instance of $create is TRUE; otherwise FALSE
@@ -144,10 +136,7 @@ if (!class_exists('WPSiteSync_Genesis', FALSE)) {
 
 		/**
 		 * Return reference to asset, relative to the base plugin's /assets/ directory
-		 *
-		 * @since 1.0.0
 		 * @param string $ref asset name to reference
-		 * @static
 		 * @return string href to fully qualified location of referenced asset
 		 */
 		public static function get_asset($ref)
@@ -158,7 +147,6 @@ if (!class_exists('WPSiteSync_Genesis', FALSE)) {
 
 		/**
 		 * Adds the WPSiteSync Menu add-on to the list of known WPSiteSync extensions
-		 *
 		 * @param array $extensions The list of extensions
 		 * @param boolean TRUE to force adding the extension; otherwise FALSE
 		 * @return array Modified list of extensions
